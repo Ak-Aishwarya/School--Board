@@ -2,6 +2,8 @@ package com.school.sba.response;
 
 
 
+import com.school.sba.enums.UserRole;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,5 +22,7 @@ public class UserResponse {
 	private String lastName;
 	private long contactNo;
 	private String email;
+	private UserRole userRole;
+	private boolean isDeleted;
 }
 

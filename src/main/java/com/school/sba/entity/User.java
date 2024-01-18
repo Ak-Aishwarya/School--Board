@@ -2,9 +2,13 @@ package com.school.sba.entity;
 
 import com.school.sba.enums.UserRole;
 
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,6 +22,7 @@ import lombok.Setter;
 @Entity
 public class User {
 @Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
 private int userId;
 @Column(unique=true)
 private String userName;
@@ -27,6 +32,9 @@ private String lastName;
 private long contactNo;
 @Column(unique=true)
 private String email;
-private UserRole ur;
+private UserRole userRole;
+private boolean isDeleted;
+@ManyToOne
+private School school;
 
 }

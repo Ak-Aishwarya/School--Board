@@ -1,6 +1,7 @@
 package com.school.sba.controller;
 import java.util.List;
 
+
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,35 +22,21 @@ import org.springframework.web.bind.annotation.RestController;
 import com.school.sba.entity.School;
 import com.school.sba.service.SchoolService;
 import com.school.sba.util.ResponseStructure;
+import com.school.sba.request.SchoolRequest;
+import com.school.sba.response.SchoolResponse;
 
 
 @RestController
-@RequestMapping("/schools")
 public class SchoolController {
 	
 	
 		@Autowired
 		private SchoolService ser;
 		
-		@PostMapping
-		public ResponseEntity<ResponseStructure<School>> add(@RequestBody School school) {
-			return ser.addSchool(school);
-		}
 		
-		@GetMapping
-		public ResponseEntity<ResponseStructure<School>> getSchool(@PathVariable int schoolId) {
-			return ser.findSchool(schoolId);
+		@PostMapping("users/{userId}/schools")
+		public ResponseEntity<ResponseStructure<SchoolResponse>> createSchool(@PathVariable int userId,@RequestBody SchoolRequest school) {
+			return ser.createSchool(userId,school);
 		}
-		
-		@PutMapping
-		public ResponseEntity<ResponseStructure<School>> updateStudent(@PathVariable int schoolId,@RequestBody School school) {
-			return ser.updateStu(schoolId, school);
-		}
-		
-		@DeleteMapping
-		public ResponseEntity<ResponseStructure<School>> delete(@PathVariable int schoolId) {
-			return ser.deleteStu(schoolId);
-		}
-		
 
 }
