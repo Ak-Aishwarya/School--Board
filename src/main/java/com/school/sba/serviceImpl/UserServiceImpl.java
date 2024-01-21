@@ -1,5 +1,7 @@
 package com.school.sba.serviceImpl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.HttpStatus;
@@ -8,10 +10,16 @@ import org.springframework.stereotype.Service;
 
 import com.school.sba.exception.UserNotFound;
 import com.school.sba.controller.SchoolController;
+import com.school.sba.entity.AcademicProgram;
 import com.school.sba.entity.School;
+import com.school.sba.entity.Subject;
 import com.school.sba.entity.User;
+import com.school.sba.enums.UserRole;
+import com.school.sba.repository.AcademicProgramRepo;
+import com.school.sba.repository.SubjectRepo;
 import com.school.sba.repository.UserRepo;
 import com.school.sba.request.UserRequest;
+import com.school.sba.response.AcademicProgramResponse;
 import com.school.sba.response.UserResponse;
 import com.school.sba.service.UserService;
 import com.school.sba.util.ResponseStructure;
@@ -23,7 +31,13 @@ public class UserServiceImpl implements UserService{
 
 	@Autowired
 	private ResponseStructure responseStructure;
-
+	
+	@Autowired
+private AcademicProgramRepo academicRepo;
+	
+	@Autowired
+	private SubjectRepo subRepo;
+	
 	@Override
 	public ResponseEntity<ResponseStructure<UserResponse>> register(UserRequest request) {
 		User user = userrepo.save(mapToUser(request));
@@ -82,21 +96,71 @@ public class UserServiceImpl implements UserService{
 		return new ResponseEntity<ResponseStructure<UserResponse>>(responseStructure, HttpStatus.OK);
 	}
 
-	
-	
+	@Override
+	public ResponseEntity<ResponseStructure<UserResponse>> addUser(int programId, int userId) {
+		User user = userrepo.findById(userId)
+				.orElseThrow(()-> new UserNotFound("user not found"));
+
+		AcademicProgram academicProgram = academicRepo.findById(programId)
+				.orElseThrow(()->new RuntimeException("AcademicProgam not found"));
+
+		if(user.getUserRole().equals(UserRole.ADMIN))
+		{
+			throw new RuntimeException("admin cannot assign");
+		}
+		else
+		{
+			user.getAcademic().add(academicProgram);
+			userrepo.save(user);
+			academicProgram.getUser().add(user);
+			academicRepo.save(academicProgram );
+
+			responseStructure.setStatus(HttpStatus.OK.value());
+			responseStructure.setMessage("user associated with academic program successfully");
+			responseStructure.setData(mapToUserResponse(user));
+
+
+			return new ResponseEntity<ResponseStructure<UserResponse>>(responseStructure,HttpStatus.OK);
+		}
 	}
 
-//	@Override
-//	public ResponseEntity<ResponseStructure<UserResponse>> update(User updateduser, int userId) {
-//		User user = userrepo.findById(userId).map(u -> {
-//			updateduser.setUserId(userId);
-//			return userrepo.save(updateduser);
-//		}).orElseThrow(() -> new UserNotFound("user id not found"));
-//		responseStructure.setStatus(HttpStatus.OK.value());
-//		responseStructure.setMessage("user updated sucessfully");
-//		responseStructure.setData(mapToUserResponse(user));
-//		return new ResponseEntity<ResponseStructure<UserResponse>>(responseStructure, HttpStatus.OK);
-//	}
+	@Override
+	public ResponseEntity<ResponseStructure<UserResponse>> addSubjectToTeacher(int subjectId, int userId) {
+		Subject subject =subRepo .findById(subjectId)
+				.orElseThrow(()-> new RuntimeException("subject not found"));
+
+		User user = userrepo.findById(userId)
+				.orElseThrow(()-> new UserNotFound("user not found"));
+
+		if(user.getUserRole().equals(UserRole.TEACHER))
+		{
+
+			user.setSubject(subject);
+			userrepo.save(user);
+
+			responseStructure.setStatus(HttpStatus.OK.value());
+			responseStructure.setMessage("subject added to the teacher successfully");
+			responseStructure.setData(mapToUserResponse(user));
+
+			return new ResponseEntity<ResponseStructure<UserResponse>>(responseStructure,HttpStatus.OK);
+
+		}
+		else
+		{
+			throw new RuntimeException("user is not a teacher");
+		}
+	}
+
+
+	}
+
+	
+
+	
+	
+	
+
+
 	
 	
 

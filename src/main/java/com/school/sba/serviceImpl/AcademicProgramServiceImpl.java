@@ -52,13 +52,18 @@ public class AcademicProgramServiceImpl implements AcademicProgramService{
 			return new ResponseEntity<ResponseStructure<List<AcademicProgramResponse>>>(responseStructure, HttpStatus.CREATED);
 		}).orElseThrow(()->new IllegalArgumentException("School Does Not Exist!!!"));
 	}
-	private AcademicProgramResponse mapToResponse(AcademicProgram academicProgram) {
+	public static AcademicProgramResponse mapToResponse(AcademicProgram academicProgram) {
+		List<String> subjects=new ArrayList<String>();
+		academicProgram.getSubject().forEach(subject->{
+			subjects.add(subject.getSubjectName());
+		});
 		return AcademicProgramResponse.builder()
 				.programId(academicProgram.getProgramId())
 				.beginsAt(academicProgram.getBeginsAt())
 				.endsAt(academicProgram.getEndsAt())
 				.programName(academicProgram.getProgramName())
 				.programType(academicProgram.getProgramType())
+				.subject(subjects)
 				.build();
 	}
 	private AcademicProgram mapToAcademicProgram(School school, AcademicRequest academicProgramRequest) {
@@ -69,6 +74,11 @@ public class AcademicProgramServiceImpl implements AcademicProgramService{
 				.programType(academicProgramRequest.getProgramType())
 				.school(school)
 				.build();
+	}
+	@Override
+	public ResponseEntity<ResponseStructure<List<AcademicProgramResponse>>> addUser(int programId, int userId) {
+		
+		return null;
 	}
 
 	
